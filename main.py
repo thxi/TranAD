@@ -1,11 +1,10 @@
 import os
-import pickle
 from pprint import pprint
 from time import time
 
 import pandas as pd
 import torch.nn as nn
-from torch.utils.data import DataLoader, Dataset, TensorDataset
+from torch.utils.data import DataLoader, TensorDataset
 from tqdm import tqdm
 
 from src.constants import *
@@ -27,7 +26,9 @@ def convert_to_windows(data, model):
             w = data[i - w_size : i]
         else:
             w = torch.cat([data[0].repeat(w_size - i, 1), data[0:i]])
-        windows.append(w if "TranAD" in args.model or "Attention" in args.model else w.view(-1))
+        windows.append(
+            w if "TranAD" in args.model or "Attention" in args.model else w.view(-1)
+        )
     return torch.stack(windows)
 
 
@@ -101,9 +102,9 @@ def backprop(epoch, model, data, dataO, optimizer, scheduler, training=True):
     feats = dataO.shape[1]
     if "DAGMM" in model.name:
         l = nn.MSELoss(reduction="none")
-        compute = ComputeLoss(model, 0.1, 0.005, "cpu", model.n_gmm)
+        ComputeLoss(model, 0.1, 0.005, "cpu", model.n_gmm)
         n = epoch + 1
-        w_size = model.n_window
+        model.n_window
         l1s = []
         l2s = []
         if training:
@@ -126,14 +127,15 @@ def backprop(epoch, model, data, dataO, optimizer, scheduler, training=True):
                 ae1s.append(x_hat)
             ae1s = torch.stack(ae1s)
             y_pred = ae1s[:, data.shape[1] - feats : data.shape[1]].view(-1, feats)
-            loss = l(ae1s, data)[:, data.shape[1] - feats : data.shape[1]].view(-1, feats)
+            loss = l(ae1s, data)[:, data.shape[1] - feats : data.shape[1]].view(
+                -1, feats
+            )
             return loss.detach().numpy(), y_pred.detach().numpy()
     if "Attention" in model.name:
         l = nn.MSELoss(reduction="none")
         n = epoch + 1
-        w_size = model.n_window
+        model.n_window
         l1s = []
-        res = []
         if training:
             for d in data:
                 ae, ats = model(d)
@@ -184,7 +186,7 @@ def backprop(epoch, model, data, dataO, optimizer, scheduler, training=True):
     elif "USAD" in model.name:
         l = nn.MSELoss(reduction="none")
         n = epoch + 1
-        w_size = model.n_window
+        model.n_window
         l1s, l2s = [], []
         if training:
             for d in data:
@@ -219,7 +221,7 @@ def backprop(epoch, model, data, dataO, optimizer, scheduler, training=True):
     elif model.name in ["GDN", "MTAD_GAT", "MSCRED", "CAE_M"]:
         l = nn.MSELoss(reduction="none")
         n = epoch + 1
-        w_size = model.n_window
+        model.n_window
         l1s = []
         if training:
             for i, d in enumerate(data):
@@ -251,10 +253,14 @@ def backprop(epoch, model, data, dataO, optimizer, scheduler, training=True):
         l = nn.MSELoss(reduction="none")
         bcel = nn.BCELoss(reduction="mean")
         msel = nn.MSELoss(reduction="mean")
-        real_label, fake_label = torch.tensor([0.9]), torch.tensor([0.1])  # label smoothing
-        real_label, fake_label = real_label.type(torch.DoubleTensor), fake_label.type(torch.DoubleTensor)
+        real_label, fake_label = torch.tensor([0.9]), torch.tensor(
+            [0.1]
+        )  # label smoothing
+        real_label, fake_label = real_label.type(torch.DoubleTensor), fake_label.type(
+            torch.DoubleTensor
+        )
         n = epoch + 1
-        w_size = model.n_window
+        model.n_window
         mses, gls, dls = [], [], []
         if training:
             for d in data:
@@ -277,7 +283,9 @@ def backprop(epoch, model, data, dataO, optimizer, scheduler, training=True):
                 gls.append(gl.item())
                 dls.append(dl.item())
                 # tqdm.write(f'Epoch {epoch},\tMSE = {mse},\tG = {gl},\tD = {dl}')
-            tqdm.write(f"Epoch {epoch},\tMSE = {np.mean(mses)},\tG = {np.mean(gls)},\tD = {np.mean(dls)}")
+            tqdm.write(
+                f"Epoch {epoch},\tMSE = {np.mean(mses)},\tG = {np.mean(gls)},\tD = {np.mean(dls)}"
+            )
             return np.mean(gls) + np.mean(dls), optimizer.param_groups[0]["lr"]
         else:
             outputs = []
@@ -296,7 +304,7 @@ def backprop(epoch, model, data, dataO, optimizer, scheduler, training=True):
         bs = model.batch if training else len(data)
         dataloader = DataLoader(dataset, batch_size=bs)
         n = epoch + 1
-        w_size = model.n_window
+        model.n_window
         l1s, l2s = [], []
         if training:
             for d, _ in dataloader:
@@ -304,7 +312,11 @@ def backprop(epoch, model, data, dataO, optimizer, scheduler, training=True):
                 window = d.permute(1, 0, 2)
                 elem = window[-1, :, :].view(1, local_bs, feats)
                 z = model(window, elem)
-                l1 = l(z, elem) if not isinstance(z, tuple) else (1 / n) * l(z[0], elem) + (1 - 1 / n) * l(z[1], elem)
+                l1 = (
+                    l(z, elem)
+                    if not isinstance(z, tuple)
+                    else (1 / n) * l(z[0], elem) + (1 - 1 / n) * l(z[1], elem)
+                )
                 if isinstance(z, tuple):
                     z = z[1]
                 l1s.append(torch.mean(l1).item())
@@ -342,7 +354,9 @@ if __name__ == "__main__":
     train_loader, test_loader, labels = load_dataset(args.dataset)
     if args.model in ["MERLIN"]:
         eval(f"run_{args.model.lower()}(test_loader, labels, args.dataset)")
-    model, optimizer, scheduler, epoch, accuracy_list = load_model(args.model, labels.shape[1])
+    model, optimizer, scheduler, epoch, accuracy_list = load_model(
+        args.model, labels.shape[1]
+    )
 
     ## Prepare data
     trainD, testD = next(iter(train_loader)), next(iter(test_loader))
@@ -361,7 +375,9 @@ if __name__ == "__main__":
         ]
         or "TranAD" in model.name
     ):
-        trainD, testD = convert_to_windows(trainD, model), convert_to_windows(testD, model)
+        trainD, testD = convert_to_windows(trainD, model), convert_to_windows(
+            testD, model
+        )
 
     ### Training phase
     if not args.test:
@@ -372,7 +388,13 @@ if __name__ == "__main__":
         for e in tqdm(list(range(epoch + 1, epoch + num_epochs + 1))):
             lossT, lr = backprop(e, model, trainD, trainO, optimizer, scheduler)
             accuracy_list.append((lossT, lr))
-        print(color.BOLD + "Training time: " + "{:10.4f}".format(time() - start) + " s" + color.ENDC)
+        print(
+            color.BOLD
+            + "Training time: "
+            + "{:10.4f}".format(time() - start)
+            + " s"
+            + color.ENDC
+        )
         save_model(model, optimizer, scheduler, e, accuracy_list)
         plot_accuracies(accuracy_list, f"{args.model}_{args.dataset}")
 
@@ -380,7 +402,9 @@ if __name__ == "__main__":
     torch.zero_grad = True
     model.eval()
     print(f"{color.HEADER}Testing {args.model} on {args.dataset}{color.ENDC}")
-    loss, y_pred = backprop(0, model, testD, testO, optimizer, scheduler, training=False)
+    loss, y_pred = backprop(
+        0, model, testD, testO, optimizer, scheduler, training=False
+    )
 
     ### Plot curves
     if not args.test:

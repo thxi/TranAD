@@ -19,7 +19,7 @@ maxint = 200000
 
 # z-normalized euclidean distance
 def dist(t, q):
-    m = q.shape[0]
+    q.shape[0]
     # t, q = t.reshape(-1), q.reshape(-1)
     # znorm2 = 2 * m * (1 - (np.dot(q, t) - m * np.mean(q) * np.mean(t)) / (m * np.std(q) * np.std(t)))
     znorm2 = np.mean((t - q) ** 2)
@@ -150,7 +150,7 @@ def run_merlin(test, labels, dset):
     t = next(iter(test)).detach().numpy()
     labelsAll = labels
     labels = (np.sum(labels, axis=1) >= 1) + 0
-    lsum = np.sum(labels)
+    np.sum(labels)
     start = time()
     pred = np.zeros_like(labels)
     d, _ = merlin(t, 60, 62)  #
@@ -164,7 +164,13 @@ def run_merlin(test, labels, dset):
         result.update(hit_att(predAll, labelsAll))
         result.update(ndcg(predAll, labelsAll))
     pprint(result)
-    print(color.BOLD + "Training time: " + "{:10.4f}".format(time() - start) + " s" + color.ENDC)
+    print(
+        color.BOLD
+        + "Training time: "
+        + "{:10.4f}".format(time() - start)
+        + " s"
+        + color.ENDC
+    )
     exit()
 
 

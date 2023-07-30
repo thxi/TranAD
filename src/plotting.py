@@ -1,5 +1,4 @@
 import os
-import statistics
 
 import matplotlib.pyplot as plt
 import numpy as np

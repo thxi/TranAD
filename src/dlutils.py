@@ -4,7 +4,6 @@ import math
 import numpy as np
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 from torch.autograd import Variable
 
 # configure logger for this module
@@ -49,7 +48,9 @@ class ConvLSTMCell(nn.Module):
     def forward(self, input_tensor, cur_state):
         h_cur, c_cur = cur_state
 
-        combined = torch.cat([input_tensor, h_cur], dim=1)  # concatenate along channel axis
+        combined = torch.cat(
+            [input_tensor, h_cur], dim=1
+        )  # concatenate along channel axis
 
         combined_conv = self.conv(combined)
         cc_i, cc_f, cc_o, cc_g = torch.split(combined_conv, self.hidden_dim, dim=1)
@@ -191,7 +192,9 @@ class ConvLSTM(nn.Module):
             h, c = hidden_state[layer_idx]
             output_inner = []
             for t in range(seq_len):
-                h, c = self.cell_list[layer_idx](input_tensor=cur_layer_input[:, t, :, :, :], cur_state=[h, c])
+                h, c = self.cell_list[layer_idx](
+                    input_tensor=cur_layer_input[:, t, :, :, :], cur_state=[h, c]
+                )
                 output_inner.append(h)
 
             layer_output = torch.stack(output_inner, dim=1)
@@ -216,7 +219,10 @@ class ConvLSTM(nn.Module):
     def _check_kernel_size_consistency(kernel_size):
         if not (
             isinstance(kernel_size, tuple)
-            or (isinstance(kernel_size, list) and all([isinstance(elem, tuple) for elem in kernel_size]))
+            or (
+                isinstance(kernel_size, list)
+                and all([isinstance(elem, tuple) for elem in kernel_size])
+            )
         ):
             raise ValueError("`kernel_size` must be tuple or list of tuples")
 
@@ -234,7 +240,9 @@ class PositionalEncoding(nn.Module):
 
         pe = torch.zeros(max_len, d_model)
         position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
-        div_term = torch.exp(torch.arange(0, d_model).float() * (-math.log(10000.0) / d_model))
+        div_term = torch.exp(
+            torch.arange(0, d_model).float() * (-math.log(10000.0) / d_model)
+        )
         pe += torch.sin(position * div_term)
         pe += torch.cos(position * div_term)
         pe = pe.unsqueeze(0).transpose(0, 1)
@@ -313,7 +321,11 @@ class ComputeLoss:
 
         sample_energy, cov_diag = self.compute_energy(z, gamma)
 
-        loss = reconst_loss + self.lambda_energy * sample_energy + self.lambda_cov * cov_diag
+        loss = (
+            reconst_loss
+            + self.lambda_energy * sample_energy
+            + self.lambda_cov * cov_diag
+        )
         return Variable(loss, requires_grad=True)
 
     def compute_energy(self, z, gamma, phi=None, mu=None, cov=None, sample_mean=True):
@@ -330,7 +342,9 @@ class ComputeLoss:
         for k in range(self.n_gmm):
             cov_k = cov[k] + (torch.eye(cov[k].size(-1)) * eps).to(self.device)
             cov_inverse.append(torch.inverse(cov_k).unsqueeze(0))
-            det_cov.append((Cholesky.apply(cov_k.cpu() * (2 * np.pi)).diag().prod()).unsqueeze(0))
+            det_cov.append(
+                (Cholesky.apply(cov_k.cpu() * (2 * np.pi)).diag().prod()).unsqueeze(0)
+            )
             cov_diag += torch.sum(1 / cov_k.diag())
 
         cov_inverse = torch.cat(cov_inverse, dim=0)
@@ -341,7 +355,12 @@ class ComputeLoss:
             dim=-1,
         )
         E_z = torch.exp(E_z)
-        E_z = -torch.log(torch.sum(phi.unsqueeze(0) * E_z / (torch.sqrt(det_cov)).unsqueeze(0), dim=1) + eps)
+        E_z = -torch.log(
+            torch.sum(
+                phi.unsqueeze(0) * E_z / (torch.sqrt(det_cov)).unsqueeze(0), dim=1
+            )
+            + eps
+        )
         if sample_mean == True:
             E_z = torch.mean(E_z)
         return E_z, cov_diag

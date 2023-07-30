@@ -13,7 +13,6 @@ from math import floor, log
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import tqdm
 from scipy.optimize import minimize
 
 # colors for plot
@@ -196,10 +195,14 @@ class SPOT:
         n_init = self.init_data.size
 
         S = np.sort(self.init_data)  # we sort X to get the empirical quantile
-        self.init_threshold = S[int(level * n_init)]  # t is fixed for the whole algorithm
+        self.init_threshold = S[
+            int(level * n_init)
+        ]  # t is fixed for the whole algorithm
 
         # initial peaks
-        self.peaks = self.init_data[self.init_data > self.init_threshold] - self.init_threshold
+        self.peaks = (
+            self.init_data[self.init_data > self.init_threshold] - self.init_threshold
+        )
         self.Nt = self.peaks.size
         self.n = n_init
 
@@ -216,7 +219,10 @@ class SPOT:
             print("\t" + chr(0x03B3) + " = " + str(g))
             print("\t" + chr(0x03C3) + " = " + str(s))
             print("\tL = " + str(l))
-            print("Extreme quantile (probability = %s): %s" % (self.proba, self.extreme_quantile))
+            print(
+                "Extreme quantile (probability = %s): %s"
+                % (self.proba, self.extreme_quantile)
+            )
 
         return
 
@@ -452,7 +458,9 @@ class SPOT:
                         alarm.append(i)
                     # otherwise we add it in the peaks
                     else:
-                        self.peaks = np.append(self.peaks, self.data[i] - self.init_threshold)
+                        self.peaks = np.append(
+                            self.peaks, self.data[i] - self.init_threshold
+                        )
                         self.Nt += 1
                         self.n += 1
                         # and we update the thresholds
@@ -463,7 +471,9 @@ class SPOT:
                 # case where the value exceeds the initial threshold but not the alarm ones
                 elif self.data[i] > self.init_threshold:
                     # we add it in the peaks
-                    self.peaks = np.append(self.peaks, self.data[i] - self.init_threshold)
+                    self.peaks = np.append(
+                        self.peaks, self.data[i] - self.init_threshold
+                    )
                     self.Nt += 1
                     self.n += 1
                     # and we update the thresholds
@@ -688,13 +698,21 @@ class biSPOT:
         n_init = self.init_data.size
 
         S = np.sort(self.init_data)  # we sort X to get the empirical quantile
-        self.init_threshold["up"] = S[int(0.98 * n_init)]  # t is fixed for the whole algorithm
-        self.init_threshold["down"] = S[int(0.02 * n_init)]  # t is fixed for the whole algorithm
+        self.init_threshold["up"] = S[
+            int(0.98 * n_init)
+        ]  # t is fixed for the whole algorithm
+        self.init_threshold["down"] = S[
+            int(0.02 * n_init)
+        ]  # t is fixed for the whole algorithm
 
         # initial peaks
-        self.peaks["up"] = self.init_data[self.init_data > self.init_threshold["up"]] - self.init_threshold["up"]
+        self.peaks["up"] = (
+            self.init_data[self.init_data > self.init_threshold["up"]]
+            - self.init_threshold["up"]
+        )
         self.peaks["down"] = -(
-            self.init_data[self.init_data < self.init_threshold["down"]] - self.init_threshold["down"]
+            self.init_data[self.init_data < self.init_threshold["down"]]
+            - self.init_threshold["down"]
         )
         self.Nt["up"] = self.peaks["up"].size
         self.Nt["down"] = self.peaks["down"].size
@@ -716,7 +734,12 @@ class biSPOT:
         form = "\t" + "%20s" + "%20.2f" + "%20.2f"
         if verbose:
             print("[done]")
-            print("\t" + "Parameters".rjust(ltab) + "Upper".rjust(ltab) + "Lower".rjust(ltab))
+            print(
+                "\t"
+                + "Parameters".rjust(ltab)
+                + "Upper".rjust(ltab)
+                + "Lower".rjust(ltab)
+            )
             print("\t" + "-" * ltab * 3)
             print(form % (chr(0x03B3), self.gamma["up"], self.gamma["down"]))
             print(form % (chr(0x03C3), self.sigma["up"], self.sigma["down"]))
@@ -916,13 +939,17 @@ class biSPOT:
         if side == "up":
             r = self.n * self.proba / self.Nt[side]
             if gamma != 0:
-                return self.init_threshold["up"] + (sigma / gamma) * (pow(r, -gamma) - 1)
+                return self.init_threshold["up"] + (sigma / gamma) * (
+                    pow(r, -gamma) - 1
+                )
             else:
                 return self.init_threshold["up"] - sigma * log(r)
         elif side == "down":
             r = self.n * self.proba / self.Nt[side]
             if gamma != 0:
-                return self.init_threshold["down"] - (sigma / gamma) * (pow(r, -gamma) - 1)
+                return self.init_threshold["down"] - (sigma / gamma) * (
+                    pow(r, -gamma) - 1
+                )
             else:
                 return self.init_threshold["down"] + sigma * log(r)
         else:
@@ -968,7 +995,9 @@ class biSPOT:
                     alarm.append(i)
                 # otherwise we add it in the peaks
                 else:
-                    self.peaks["up"] = np.append(self.peaks["up"], self.data[i] - self.init_threshold["up"])
+                    self.peaks["up"] = np.append(
+                        self.peaks["up"], self.data[i] - self.init_threshold["up"]
+                    )
                     self.Nt["up"] += 1
                     self.n += 1
                     # and we update the thresholds
@@ -979,7 +1008,9 @@ class biSPOT:
             # case where the value exceeds the initial threshold but not the alarm ones
             elif self.data[i] > self.init_threshold["up"]:
                 # we add it in the peaks
-                self.peaks["up"] = np.append(self.peaks["up"], self.data[i] - self.init_threshold["up"])
+                self.peaks["up"] = np.append(
+                    self.peaks["up"], self.data[i] - self.init_threshold["up"]
+                )
                 self.Nt["up"] += 1
                 self.n += 1
                 # and we update the thresholds
@@ -1007,7 +1038,9 @@ class biSPOT:
             # case where the value exceeds the initial threshold but not the alarm ones
             elif self.data[i] < self.init_threshold["down"]:
                 # we add it in the peaks
-                self.peaks["down"] = np.append(self.peaks["down"], -(self.data[i] - self.init_threshold["down"]))
+                self.peaks["down"] = np.append(
+                    self.peaks["down"], -(self.data[i] - self.init_threshold["down"])
+                )
                 self.Nt["down"] += 1
                 self.n += 1
                 # and we update the thresholds
@@ -1238,7 +1271,9 @@ class dSPOT:
         T = self.init_data[self.depth :] - M[:-1]  # new variable
 
         S = np.sort(T)  # we sort X to get the empirical quantile
-        self.init_threshold = S[int(0.98 * n_init)]  # t is fixed for the whole algorithm
+        self.init_threshold = S[
+            int(0.98 * n_init)
+        ]  # t is fixed for the whole algorithm
 
         # initial peaks
         self.peaks = T[T > self.init_threshold] - self.init_threshold
@@ -1258,7 +1293,10 @@ class dSPOT:
             print("\t" + chr(0x03B3) + " = " + str(g))
             print("\t" + chr(0x03C3) + " = " + str(s))
             print("\tL = " + str(l))
-            print("Extreme quantile (probability = %s): %s" % (self.proba, self.extreme_quantile))
+            print(
+                "Extreme quantile (probability = %s): %s"
+                % (self.proba, self.extreme_quantile)
+            )
 
         return
 
@@ -1490,7 +1528,9 @@ class dSPOT:
                     alarm.append(i)
                 # otherwise we add it in the peaks
                 else:
-                    self.peaks = np.append(self.peaks, self.data[i] - Mi - self.init_threshold)
+                    self.peaks = np.append(
+                        self.peaks, self.data[i] - Mi - self.init_threshold
+                    )
                     self.Nt += 1
                     self.n += 1
                     # and we update the thresholds
@@ -1502,7 +1542,9 @@ class dSPOT:
             # case where the value exceeds the initial threshold but not the alarm ones
             elif (self.data[i] - Mi) > self.init_threshold:
                 # we add it in the peaks
-                self.peaks = np.append(self.peaks, self.data[i] - Mi - self.init_threshold)
+                self.peaks = np.append(
+                    self.peaks, self.data[i] - Mi - self.init_threshold
+                )
                 self.Nt += 1
                 self.n += 1
                 # and we update the thresholds
@@ -1735,12 +1777,18 @@ class bidSPOT:
         T = self.init_data[self.depth :] - M[:-1]  # new variable
 
         S = np.sort(T)  # we sort T to get the empirical quantile
-        self.init_threshold["up"] = S[int(0.98 * n_init)]  # t is fixed for the whole algorithm
-        self.init_threshold["down"] = S[int(0.02 * n_init)]  # t is fixed for the whole algorithm
+        self.init_threshold["up"] = S[
+            int(0.98 * n_init)
+        ]  # t is fixed for the whole algorithm
+        self.init_threshold["down"] = S[
+            int(0.02 * n_init)
+        ]  # t is fixed for the whole algorithm
 
         # initial peaks
         self.peaks["up"] = T[T > self.init_threshold["up"]] - self.init_threshold["up"]
-        self.peaks["down"] = -(T[T < self.init_threshold["down"]] - self.init_threshold["down"])
+        self.peaks["down"] = -(
+            T[T < self.init_threshold["down"]] - self.init_threshold["down"]
+        )
         self.Nt["up"] = self.peaks["up"].size
         self.Nt["down"] = self.peaks["down"].size
         self.n = n_init
@@ -1761,7 +1809,12 @@ class bidSPOT:
         form = "\t" + "%20s" + "%20.2f" + "%20.2f"
         if verbose:
             print("[done]")
-            print("\t" + "Parameters".rjust(ltab) + "Upper".rjust(ltab) + "Lower".rjust(ltab))
+            print(
+                "\t"
+                + "Parameters".rjust(ltab)
+                + "Upper".rjust(ltab)
+                + "Lower".rjust(ltab)
+            )
             print("\t" + "-" * ltab * 3)
             print(form % (chr(0x03B3), self.gamma["up"], self.gamma["down"]))
             print(form % (chr(0x03C3), self.sigma["up"], self.sigma["down"]))
@@ -1961,13 +2014,17 @@ class bidSPOT:
         if side == "up":
             r = self.n * self.proba / self.Nt[side]
             if gamma != 0:
-                return self.init_threshold["up"] + (sigma / gamma) * (pow(r, -gamma) - 1)
+                return self.init_threshold["up"] + (sigma / gamma) * (
+                    pow(r, -gamma) - 1
+                )
             else:
                 return self.init_threshold["up"] - sigma * log(r)
         elif side == "down":
             r = self.n * self.proba / self.Nt[side]
             if gamma != 0:
-                return self.init_threshold["down"] - (sigma / gamma) * (pow(r, -gamma) - 1)
+                return self.init_threshold["down"] - (sigma / gamma) * (
+                    pow(r, -gamma) - 1
+                )
             else:
                 return self.init_threshold["down"] + sigma * log(r)
         else:
@@ -2018,7 +2075,9 @@ class bidSPOT:
                     alarm.append(i)
                 # otherwise we add it in the peaks
                 else:
-                    self.peaks["up"] = np.append(self.peaks["up"], Ni - self.init_threshold["up"])
+                    self.peaks["up"] = np.append(
+                        self.peaks["up"], Ni - self.init_threshold["up"]
+                    )
                     self.Nt["up"] += 1
                     self.n += 1
                     # and we update the thresholds
@@ -2030,7 +2089,9 @@ class bidSPOT:
             # case where the value exceeds the initial threshold but not the alarm ones
             elif Ni > self.init_threshold["up"]:
                 # we add it in the peaks
-                self.peaks["up"] = np.append(self.peaks["up"], Ni - self.init_threshold["up"])
+                self.peaks["up"] = np.append(
+                    self.peaks["up"], Ni - self.init_threshold["up"]
+                )
                 self.Nt["up"] += 1
                 self.n += 1
                 # and we update the thresholds
@@ -2044,7 +2105,9 @@ class bidSPOT:
                     alarm.append(i)
                 # otherwise we add it in the peaks
                 else:
-                    self.peaks["down"] = np.append(self.peaks["down"], -(Ni - self.init_threshold["down"]))
+                    self.peaks["down"] = np.append(
+                        self.peaks["down"], -(Ni - self.init_threshold["down"])
+                    )
                     self.Nt["down"] += 1
                     self.n += 1
                     # and we update the thresholds
@@ -2056,7 +2119,9 @@ class bidSPOT:
             # case where the value exceeds the initial threshold but not the alarm ones
             elif Ni < self.init_threshold["down"]:
                 # we add it in the peaks
-                self.peaks["down"] = np.append(self.peaks["down"], -(Ni - self.init_threshold["down"]))
+                self.peaks["down"] = np.append(
+                    self.peaks["down"], -(Ni - self.init_threshold["down"])
+                )
                 self.Nt["down"] += 1
                 self.n += 1
                 # and we update the thresholds

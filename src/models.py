@@ -1,10 +1,7 @@
-import pickle
-
 import dgl
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torch.optim as optim
 from dgl.nn import GATConv
 from torch.nn import TransformerDecoder, TransformerEncoder
 
@@ -53,7 +50,10 @@ class Attention(nn.Module):
         self.n_feats = feats
         self.n_window = 5  # MHA w_size = 5
         self.n = self.n_feats * self.n_window
-        self.atts = [nn.Sequential(nn.Linear(self.n, feats * feats), nn.ReLU(True)) for i in range(1)]
+        self.atts = [
+            nn.Sequential(nn.Linear(self.n, feats * feats), nn.ReLU(True))
+            for i in range(1)
+        ]
         self.atts = nn.ModuleList(self.atts)
 
     def forward(self, g):
@@ -176,7 +176,11 @@ class OmniAnomaly(nn.Module):
         )
 
     def forward(self, x, hidden=None):
-        hidden = torch.rand(2, 1, self.n_hidden, dtype=torch.float64) if hidden is not None else hidden
+        hidden = (
+            torch.rand(2, 1, self.n_hidden, dtype=torch.float64)
+            if hidden is not None
+            else hidden
+        )
         out, hidden = self.lstm(x.view(1, 1, -1), hidden)
         ## Encode
         x = self.encoder(out)
@@ -316,14 +320,20 @@ class MTAD_GAT(nn.Module):
         self.n_feats = feats
         self.n_window = feats
         self.n_hidden = feats * feats
-        self.g = dgl.graph((torch.tensor(list(range(1, feats + 1))), torch.tensor([0] * feats)))
+        self.g = dgl.graph(
+            (torch.tensor(list(range(1, feats + 1))), torch.tensor([0] * feats))
+        )
         self.g = dgl.add_self_loop(self.g)
         self.feature_gat = GATConv(feats, 1, feats)
         self.time_gat = GATConv(feats, 1, feats)
         self.gru = nn.GRU((feats + 1) * feats * 3, feats * feats, 1)
 
     def forward(self, data, hidden):
-        hidden = torch.rand(1, 1, self.n_hidden, dtype=torch.float64) if hidden is not None else hidden
+        hidden = (
+            torch.rand(1, 1, self.n_hidden, dtype=torch.float64)
+            if hidden is not None
+            else hidden
+        )
         data = data.view(self.n_window, self.n_feats)
         data_r = torch.cat((torch.zeros(1, self.n_feats), data))
         feat_r = self.feature_gat(self.g, data_r)
@@ -428,9 +438,13 @@ class TranAD_Basic(nn.Module):
         self.n_window = 10
         self.n = self.n_feats * self.n_window
         self.pos_encoder = PositionalEncoding(feats, 0.1, self.n_window)
-        encoder_layers = TransformerEncoderLayer(d_model=feats, nhead=feats, dim_feedforward=16, dropout=0.1)
+        encoder_layers = TransformerEncoderLayer(
+            d_model=feats, nhead=feats, dim_feedforward=16, dropout=0.1
+        )
         self.transformer_encoder = TransformerEncoder(encoder_layers, 1)
-        decoder_layers = TransformerDecoderLayer(d_model=feats, nhead=feats, dim_feedforward=16, dropout=0.1)
+        decoder_layers = TransformerDecoderLayer(
+            d_model=feats, nhead=feats, dim_feedforward=16, dropout=0.1
+        )
         self.transformer_decoder = TransformerDecoder(decoder_layers, 1)
         self.fcn = nn.Sigmoid()
 
@@ -505,9 +519,13 @@ class TranAD_Adversarial(nn.Module):
         self.n_window = 10
         self.n = self.n_feats * self.n_window
         self.pos_encoder = PositionalEncoding(2 * feats, 0.1, self.n_window)
-        encoder_layers = TransformerEncoderLayer(d_model=2 * feats, nhead=feats, dim_feedforward=16, dropout=0.1)
+        encoder_layers = TransformerEncoderLayer(
+            d_model=2 * feats, nhead=feats, dim_feedforward=16, dropout=0.1
+        )
         self.transformer_encoder = TransformerEncoder(encoder_layers, 1)
-        decoder_layers = TransformerDecoderLayer(d_model=2 * feats, nhead=feats, dim_feedforward=16, dropout=0.1)
+        decoder_layers = TransformerDecoderLayer(
+            d_model=2 * feats, nhead=feats, dim_feedforward=16, dropout=0.1
+        )
         self.transformer_decoder = TransformerDecoder(decoder_layers, 1)
         self.fcn = nn.Sequential(nn.Linear(2 * feats, feats), nn.Sigmoid())
 
@@ -542,11 +560,17 @@ class TranAD_SelfConditioning(nn.Module):
         self.n_window = 10
         self.n = self.n_feats * self.n_window
         self.pos_encoder = PositionalEncoding(2 * feats, 0.1, self.n_window)
-        encoder_layers = TransformerEncoderLayer(d_model=2 * feats, nhead=feats, dim_feedforward=16, dropout=0.1)
+        encoder_layers = TransformerEncoderLayer(
+            d_model=2 * feats, nhead=feats, dim_feedforward=16, dropout=0.1
+        )
         self.transformer_encoder = TransformerEncoder(encoder_layers, 1)
-        decoder_layers1 = TransformerDecoderLayer(d_model=2 * feats, nhead=feats, dim_feedforward=16, dropout=0.1)
+        decoder_layers1 = TransformerDecoderLayer(
+            d_model=2 * feats, nhead=feats, dim_feedforward=16, dropout=0.1
+        )
         self.transformer_decoder1 = TransformerDecoder(decoder_layers1, 1)
-        decoder_layers2 = TransformerDecoderLayer(d_model=2 * feats, nhead=feats, dim_feedforward=16, dropout=0.1)
+        decoder_layers2 = TransformerDecoderLayer(
+            d_model=2 * feats, nhead=feats, dim_feedforward=16, dropout=0.1
+        )
         self.transformer_decoder2 = TransformerDecoder(decoder_layers2, 1)
         self.fcn = nn.Sequential(nn.Linear(2 * feats, feats), nn.Sigmoid())
 
@@ -578,11 +602,17 @@ class TranAD(nn.Module):
         self.n_window = 10
         self.n = self.n_feats * self.n_window
         self.pos_encoder = PositionalEncoding(2 * feats, 0.1, self.n_window)
-        encoder_layers = TransformerEncoderLayer(d_model=2 * feats, nhead=feats, dim_feedforward=16, dropout=0.1)
+        encoder_layers = TransformerEncoderLayer(
+            d_model=2 * feats, nhead=feats, dim_feedforward=16, dropout=0.1
+        )
         self.transformer_encoder = TransformerEncoder(encoder_layers, 1)
-        decoder_layers1 = TransformerDecoderLayer(d_model=2 * feats, nhead=feats, dim_feedforward=16, dropout=0.1)
+        decoder_layers1 = TransformerDecoderLayer(
+            d_model=2 * feats, nhead=feats, dim_feedforward=16, dropout=0.1
+        )
         self.transformer_decoder1 = TransformerDecoder(decoder_layers1, 1)
-        decoder_layers2 = TransformerDecoderLayer(d_model=2 * feats, nhead=feats, dim_feedforward=16, dropout=0.1)
+        decoder_layers2 = TransformerDecoderLayer(
+            d_model=2 * feats, nhead=feats, dim_feedforward=16, dropout=0.1
+        )
         self.transformer_decoder2 = TransformerDecoder(decoder_layers2, 1)
         self.fcn = nn.Sequential(nn.Linear(2 * feats, feats), nn.Sigmoid())
 
