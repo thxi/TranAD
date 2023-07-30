@@ -1,5 +1,5 @@
-from src.parser import *
 from src.folderconstants import *
+from src.parser import *
 
 # Threshold parameters
 lm_d = {

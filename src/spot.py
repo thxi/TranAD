@@ -8,7 +8,7 @@ Created on Mon Dec 12 10:08:16 2016
 @license: GNU GPLv3
 """
 
-from math import log, floor
+from math import floor, log
 
 import matplotlib.pyplot as plt
 import numpy as np

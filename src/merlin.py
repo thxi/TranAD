@@ -4,13 +4,15 @@
 # Time Series Archives. In 2020 IEEE International Conference on Data Mining (ICDM)
 # (pp. 1190-1195). IEEE.
 
-import numpy as np
 from pprint import pprint
 from time import time
-from src.utils import *
+
+import numpy as np
+
 from src.constants import *
 from src.diagnosis import *
 from src.pot import *
+from src.utils import *
 
 maxint = 200000
 

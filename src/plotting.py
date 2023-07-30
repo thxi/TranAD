@@ -1,10 +1,11 @@
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_pdf import PdfPages
+import os
 import statistics
-import os, torch
-import numpy as np
 
-import scienceplots
+import matplotlib.pyplot as plt
+import numpy as np
+import scienceplots  # noqa # pylint: disable=unused-import
+import torch
+from matplotlib.backends.backend_pdf import PdfPages
 
 plt.style.use(["science", "ieee"])
 plt.rcParams["text.usetex"] = False

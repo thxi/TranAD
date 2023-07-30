@@ -1,11 +1,11 @@
-import torch.nn as nn
+import logging
+import math
+
+import numpy as np
 import torch
+import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
-import math
-import numpy as np
-
-import logging
 
 # configure logger for this module
 logger = logging.getLogger(__name__)

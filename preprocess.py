@@ -1,11 +1,13 @@
-import os
-import sys
-import pandas as pd
-import numpy as np
-import pickle
 import json
-from src.folderconstants import *
+import os
+import pickle
+import sys
 from shutil import copyfile
+
+import numpy as np
+import pandas as pd
+
+from src.folderconstants import *
 
 datasets = [
     "synthetic",

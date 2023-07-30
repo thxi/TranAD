@@ -1,18 +1,20 @@
-import pickle
 import os
+import pickle
+from pprint import pprint
+from time import time
+
 import pandas as pd
+import torch.nn as nn
+from torch.utils.data import DataLoader, Dataset, TensorDataset
 from tqdm import tqdm
-from src.models import *
+
 from src.constants import *
+from src.diagnosis import *
+from src.merlin import *
+from src.models import *
 from src.plotting import *
 from src.pot import *
 from src.utils import *
-from src.diagnosis import *
-from src.merlin import *
-from torch.utils.data import Dataset, DataLoader, TensorDataset
-import torch.nn as nn
-from time import time
-from pprint import pprint
 
 # from beepy import beep
 
