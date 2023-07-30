@@ -33,9 +33,7 @@ for df in dfs:
     dfs2.append(df)
 dfs = dfs2
 
-df_merged = reduce(
-    lambda left, right: pd.merge(left, right, left_index=True, right_index=True), dfs
-)
+df_merged = reduce(lambda left, right: pd.merge(left, right, left_index=True, right_index=True), dfs)
 
 # Change timezone string format
 
@@ -52,7 +50,5 @@ df_merged = df_merged[start:]
 split = round(df_merged.shape[0] / 2)
 df_merged[:split].to_csv("train.csv")
 df_merged[split:].to_csv("test.csv")
-d = pd.DataFrame(
-    0, index=np.arange(df_merged[split:].shape[0]), columns=df_merged.columns
-)
+d = pd.DataFrame(0, index=np.arange(df_merged[split:].shape[0]), columns=df_merged.columns)
 d.to_csv("labels.csv")

@@ -77,9 +77,7 @@ def calc_seq(score, label, threshold, calc_latency=False):
     Calculate f1 score for a score sequence
     """
     if calc_latency:
-        predict, latency = adjust_predicts(
-            score, label, threshold, calc_latency=calc_latency
-        )
+        predict, latency = adjust_predicts(score, label, threshold, calc_latency=calc_latency)
         t = list(calc_point2point(predict, label))
         t.append(latency)
         return t
@@ -135,9 +133,7 @@ def pot_eval(init_score, score, label, q=1e-5, level=0.02):
         try:
             s = SPOT(q)  # SPOT object
             s.fit(init_score, score)  # data import
-            s.initialize(
-                level=lms, min_extrema=False, verbose=False
-            )  # initialization step
+            s.initialize(level=lms, min_extrema=False, verbose=False)  # initialization step
         except:
             lms = lms * 0.999
         else:

@@ -162,13 +162,7 @@ def run_merlin(test, labels, dset):
         result.update(hit_att(predAll, labelsAll))
         result.update(ndcg(predAll, labelsAll))
     pprint(result)
-    print(
-        color.BOLD
-        + "Training time: "
-        + "{:10.4f}".format(time() - start)
-        + " s"
-        + color.ENDC
-    )
+    print(color.BOLD + "Training time: " + "{:10.4f}".format(time() - start) + " s" + color.ENDC)
     exit()
 
 

@@ -76,9 +76,7 @@ def load_data(dataset):
     folder = os.path.join(output_folder, dataset)
     os.makedirs(folder, exist_ok=True)
     if dataset == "synthetic":
-        train_file = os.path.join(
-            data_folder, dataset, "synthetic_data_with_anomaly-s-1.csv"
-        )
+        train_file = os.path.join(data_folder, dataset, "synthetic_data_with_anomaly-s-1.csv")
         test_labels = os.path.join(data_folder, dataset, "test_anomaly.csv")
         dat = pd.read_csv(train_file, header=None)
         split = 10000
@@ -99,12 +97,8 @@ def load_data(dataset):
         for filename in file_list:
             if filename.endswith(".txt"):
                 load_and_save("train", filename, filename.strip(".txt"), dataset_folder)
-                s = load_and_save(
-                    "test", filename, filename.strip(".txt"), dataset_folder
-                )
-                load_and_save2(
-                    "labels", filename, filename.strip(".txt"), dataset_folder, s
-                )
+                s = load_and_save("test", filename, filename.strip(".txt"), dataset_folder)
+                load_and_save2("labels", filename, filename.strip(".txt"), dataset_folder, s)
     elif dataset == "UCR":
         dataset_folder = "data/UCR"
         file_list = os.listdir(dataset_folder)
@@ -114,9 +108,7 @@ def load_data(dataset):
             vals = filename.split(".")[0].split("_")
             dnum, vals = int(vals[0]), vals[-3:]
             vals = [int(i) for i in vals]
-            temp = np.genfromtxt(
-                os.path.join(dataset_folder, filename), dtype=np.float64, delimiter=","
-            )
+            temp = np.genfromtxt(os.path.join(dataset_folder, filename), dtype=np.float64, delimiter=",")
             min_temp, max_temp = np.min(temp), np.max(temp)
             temp = (temp - min_temp) / (max_temp - min_temp)
             train, test = temp[: vals[0]], temp[vals[0] :]
@@ -200,9 +192,7 @@ def load_data(dataset):
     elif dataset == "WADI":
         dataset_folder = "data/WADI"
         ls = pd.read_csv(os.path.join(dataset_folder, "WADI_attacklabels.csv"))
-        train = pd.read_csv(
-            os.path.join(dataset_folder, "WADI_14days.csv"), skiprows=1000, nrows=2e5
-        )
+        train = pd.read_csv(os.path.join(dataset_folder, "WADI_14days.csv"), skiprows=1000, nrows=2e5)
         test = pd.read_csv(os.path.join(dataset_folder, "WADI_attackdata.csv"))
         train.dropna(how="all", inplace=True)
         test.dropna(how="all", inplace=True)
@@ -239,9 +229,7 @@ def load_data(dataset):
         ls = pd.read_excel(os.path.join(dataset_folder, "labels.xlsx"))
         train = pd.read_excel(os.path.join(dataset_folder, "train.xlsx"))
         test = pd.read_excel(os.path.join(dataset_folder, "test.xlsx"))
-        train, test = train.values[1:, 1:].astype(float), test.values[1:, 1:].astype(
-            float
-        )
+        train, test = train.values[1:, 1:].astype(float), test.values[1:, 1:].astype(float)
         train, min_a, max_a = normalize3(train)
         test, _, _ = normalize3(test, min_a, max_a)
         ls = ls.values[:, 1].astype(int)

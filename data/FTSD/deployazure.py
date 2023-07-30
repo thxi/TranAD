@@ -10,9 +10,7 @@ ENDC = "\033[0m"
 
 
 def run(cmd, shell=True):
-    data = subprocess.run(
-        cmd, shell=shell, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-    )
+    data = subprocess.run(cmd, shell=shell, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if "ERROR" in data.stderr.decode():
         print(cmd)
         print(FAIL)
@@ -62,9 +60,7 @@ d = eval(data.replace("\r\n", "").replace("null", "'null'"))
 for a in d:
     disk_id = a["id"]
     disk_id = disk_id.split("/")[-1]
-    run(
-        f"az disk update --name {disk_id} --resource-group vm1_group --size-gb 256 --set tier=P15"
-    )
+    run(f"az disk update --name {disk_id} --resource-group vm1_group --size-gb 256 --set tier=P15")
 
 #################
 
@@ -86,11 +82,7 @@ sas_token = run(
     f"az storage account generate-sas --account-name shreshthstorage --expiry 2037-12-31T23:59:00Z --permissions wlacu --resource-types co --services bt -o tsv"
 )
 sas_token = sas_token.strip()
-p_settings = (
-    "{"
-    + f"'storageAccountName': 'shreshthstorage', 'storageAccountSasToken': '{sas_token}'"
-    + "}"
-)
+p_settings = "{" + f"'storageAccountName': 'shreshthstorage', 'storageAccountSasToken': '{sas_token}'" + "}"
 with open("diagnostic.json") as f:
     setting = json.load(f)
 for name, size in vmlist:
